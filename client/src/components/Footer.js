@@ -13,7 +13,7 @@ export const Footer = () => {
           </Col>
           <Col md={4}>
             <h4>Contact Us</h4>
-            <p>Email: majay1638@gmail.com</p>
+            <p>Email: xyz@gmail.com</p>
             <p>Phone: 555-1234</p>
           </Col>
           <Col md={4}>
