@@ -36,13 +36,13 @@ const ProductModel = require('../model/productModel')
                 Product
             )
         }else{
-            res.status(400).json(
+            res.status(200).json(
                 {message: "product not found !!"}
             )
         }
 
     }catch(error){
-        res.status(400).json({
+        res.status(500).json({
             message:error.message
         })
     }

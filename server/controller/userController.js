@@ -4,9 +4,9 @@ const bcrypt = require("bcryptjs")
 
 const signUp = async(req,res)=>{
     // extract data from request body
+    // const name = req.body.name;
     // const image = req.file;
-    const {name, email} = req.body
-    let {password} = req.body
+    const {name, email, password} = req.body
   // console.log(name,email,"ueserimag")
     try{
 
@@ -16,26 +16,17 @@ const signUp = async(req,res)=>{
           message: "Failed! Email is already in use!"
         });
       }else{
-        const url=req.file.path
-        bcrypt.genSalt(10, async function(err, salt) {
-          bcrypt.hash(password, salt, async function(err, hash) {
-              // Store hash in your password DB.
-              // console.log(salt, hash, "salt, hash")
-              password = hash
-              const newUser = new userModel({name,email,password,userImage:url})
-              await newUser.save()
-              const id = newUser._id
-              const token = jwt.sign({email,id}, process.env.SECRET_KEY)
-              return res.status(200).json({
-                  message: "user registered successfully !!",
-                  newUser,
-                  token
-              });
-              
 
-          });
+        const url=req.file.path
+        const newUser = new userModel({name,email,password,userImage:url})
+        await newUser.save()
+        const id = newUser._id
+        const token = jwt.sign({email,id}, process.env.SECRET_KEY)
+        return res.status(200).json({
+            message: "user registered successfully !!",
+            newUser,
+            token
         });
-        
       }
 
     } catch (error) {
@@ -65,7 +56,6 @@ const signIn = async(req,res)=>{
         const hash = user.password
 
         bcrypt.compare(password, hash, function(error, isMatch) {
-          console.log(password, hash)
           console.log({email,password,isMatch},"in password match")
           if (error) {
             throw error

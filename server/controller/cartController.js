@@ -1,10 +1,13 @@
 const cartModel = require("../model/cartModel")
 const jwt = require('jsonwebtoken')
 const {getUser} =require('../utils')
-const getAllCartItems = (req,res)=>{
+const getAllCartItems = async(req,res)=>{
     const user=getUser(req).id
     if (user){
-        return res.json(cartModel.find({user:user.id}).cart)
+        const cartData = await cartModel.findOne({user}).populate({
+            path: 'cart.product',
+          })
+        return res.json(cartData.cart)
     }
     return res.status(200).json({message:"Cart is empty"})
 }
@@ -21,23 +24,31 @@ const addToCart = async(req,res)=>{
     const productIndex = userCart.cart.findIndex(
     (item) => item.product.toString() === productId);
     if (productIndex!==-1){
-    userCart.cart[productIndex].quantity += parseInt(cartQuantity);
-    if (userCart.cart[productIndex].quantity==0){
-        let st=productIndex
-        let e=productIndex
-        if (productIndex==0){
-            e+=1
+        userCart.cart[productIndex].quantity += parseInt(cartQuantity);
+        if (userCart.cart[productIndex].quantity==0){
+            let st=productIndex
+            let e=productIndex
+            if (productIndex==0){
+                e+=1
+            }
+            userCart.cart.splice(st,e)
+            }
         }
-        userCart.cart.splice(st,e)
+        else{
+            const newProduct = {product:productId}
+            userCart.cart.push(newProduct)
         }
-    }
-    else{
-        const newProduct = {product:productId}
-        userCart.cart.push(newProduct)
-    }
 
             await userCart.save()
-            return res.json(userCart)
+
+            const cartData = await userCart.populate({
+                path: 'cart.product',
+              })
+            // const cartData =  await userCart.populate({
+            //         path: 'cart.product',
+            //         })
+            // console.log(cartData,"cartdata.catr")
+            return res.status(200).json(cartData.cart)
         }catch(err){
             return res.status(500).json({message:err.message})
         }
@@ -60,7 +71,10 @@ const deleteToCart = async(req,res)=>{
     }
     userCart.cart.splice(st,e)
     await userCart.save()
-    return res.json(userCart)
+    const cartData =  await userCart.populate({
+        path: 'cart.product',
+      })
+    return res.json(cartData.cart)
     }catch(err){
         return res.status(500).json({message:err.message})
     }

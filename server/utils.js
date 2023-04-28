@@ -6,4 +6,5 @@ const getUser=(req)=>{
     return user
 }
 
+
 module.exports={getUser}
